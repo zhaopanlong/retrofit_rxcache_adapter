@@ -1,15 +1,21 @@
 package com.zhaopanlong.retrofit_rxcache_adapter;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.FragmentActivity;
 
+import android.Manifest;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.zchu.rxcache.RxCache;
+import com.zchu.rxcache.diskconverter.GsonDiskConverter;
 import com.zhaopanlong.rxcacheadapter.RxJava2CallAdapterFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
@@ -17,6 +23,7 @@ import io.reactivex.Observer;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -26,6 +33,11 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 
 public class MainActivity extends AppCompatActivity {
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
     public static final String TAG = "MainActivity";
     Button test;
     TextView content;
@@ -66,6 +78,18 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         });
+        ActivityCompat.requestPermissions(MainActivity.this,
+                PERMISSIONS_STORAGE,
+                REQUEST_EXTERNAL_STORAGE);
+
+        //rxcache的default配置
+        RxCache.initializeDefault(new RxCache.Builder().appVersion(2)
+                .diskDir(new File(getCacheDir().getPath() + File.separator + "data-cache"))
+                .diskConverter(new GsonDiskConverter())
+                .diskMax(20 * 1024 * 1024)
+                .memoryMax(0)
+                .setDebug(BuildConfig.DEBUG)
+                .build());
     }
 
     public <T> T create(Class<T> service) {
