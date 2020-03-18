@@ -1,0 +1,3 @@
+rootProject.name='retrofit_rxcache_adapter'
+include ':simple'
+include ':rxcacheadapter'
